@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hello jQuery</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+      <!--   <script src="hello.js"></script> -->
+        <script src="book-controller.js"></script>
+    </head>
+
+    <body>
+        <div>
+        <!--  NO JS CODE HERE!!!!!!!!!!
+        	All event handlers are attached in the appropriate controller script
+        	
+        	Elements from this page are accessed by fetching them byId
+        	and dynamically changed with content fetched from the server
+      
+            <p id="bookDiv">The book name  is: </p>
+    		   -->
+    		   
+    		<div style="display:table;" >
+    		<span style="table-cell">Book name:</span> 
+    		
+    		<input type="text" id="txtBookName" style="display:table-cell;" required />
+    		
+    		<button style="display:block;" id="btnAddNewBook" >
+    			Add a new book via ajaxxx
+    		</button>
+    		</div>
+    		<div>
+    		<button id="btnDelAll" >Delete all </button>
+    		</div>
+    		<button id="btnFetchAllBooks" >Fetch all da books </button>
+    		<div id="allBooksContainer">
+    		  <!--  Books fetched via controller will be added here -->
+    		</div>
+        </div>
+    </body>
+</html>

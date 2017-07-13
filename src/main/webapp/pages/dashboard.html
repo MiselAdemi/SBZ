@@ -1,0 +1,396 @@
+<div ng-init="init()">
+	<div class="col-lg-8 col-lg-offset-2">
+		<h2>Article Category</h2><span class="glyphicon glyphicon-plus" data-target="#newCategoryModal" data-toggle="modal"></span>
+	
+		<table class="col-lg-12 table table-hover">
+			<tr>
+			  <th>Code</th>
+			  <th>Name</th>
+			  <th>Max Discount</th>
+			  <th></th>
+			  <th></th>
+			</tr>
+			<tr ng-repeat="category in categories track by $index">
+			 	<td>{{ category.sifra}}</td>
+			  <td>{{ category.naziv }}</td>
+			  <td>{{ category.maksimalniPopust }}</td>
+			  <td><span ng-if="category.naziv.indexOf('sirok') > -1" class="glyphicon glyphicon-flag"></span></td>
+			  <td>
+		    	<span data-ng-click="editCategoryModalShow(category)" class="glyphicon glyphicon-pencil" data-target="#categoryModal"></span>
+		    	<span data-ng-click="deleteCategory(category)" class="glyphicon glyphicon-trash"></span>
+		    </td>
+			 </tr>
+		</table>
+	</div>
+	
+	<div class="col-lg-8 col-lg-offset-2">
+		<h2>User Category</h2><span class="glyphicon glyphicon-plus" data-target="#newUserCategoryModal" data-toggle="modal"></span>
+	
+		<table class="col-lg-12 table table-hover">
+			<tr>
+			  <th>Code</th>
+			  <th>Name</th>
+
+			  <th></th>
+			</tr>
+			<tr ng-repeat="category in userCategories track by $index">
+			 	<td>{{ category.sifra}}</td>
+			  <td>{{ category.naziv }}</td>
+			  <td>
+		    	<span data-ng-click="editUserCategoryModalShow(category)" class="glyphicon glyphicon-pencil" data-target="#userCategoryModal"></span>
+		    	<span data-ng-click="deleteUserCategory(category)" class="glyphicon glyphicon-trash"></span>
+		    </td>
+			 </tr>
+		</table>
+	</div>
+	
+	<div class="col-lg-8 col-lg-offset-2">
+		<h2>Events</h2><span class="glyphicon glyphicon-plus" data-target="#newEventModal" data-toggle="modal"></span>
+	
+		<table class="col-lg-12 table table-hover">
+			<tr>
+			  <th>Code</th>
+			  <th>Name</th>
+				<th>Start</th>
+				<th>End</th>
+				<th>Discount</th>
+			  <th></th>
+			</tr>
+			<tr ng-repeat="event in events track by $index">
+			 	<td>{{ event.sifra}}</td>
+			  <td>{{ event.naziv }}</td>
+			  <td>{{ event.pocetak | date:'yyyy-MM-dd HH:mm:ss Z' }}</td>
+			  <td>{{ event.zavrsetak | date:'yyyy-MM-dd HH:mm:ss Z' }}</td>
+			  <td>{{ event.popust }}</td>
+			  <td>
+		    	<span data-ng-click="editEventModalShow(event)" class="glyphicon glyphicon-pencil" data-target="#userEventModal"></span>
+		    	<span data-ng-click="deleteEvent(event)" class="glyphicon glyphicon-trash"></span>
+		    </td>
+			 </tr>
+		</table>
+	</div>
+</div>
+
+	<!-- Category Modal -->
+	<div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title" id="myModalLabel">Edit category</h4>
+	      </div>
+	      <div class="modal-body">
+		      <div class="form-group">
+		      	<label>Name</label>
+		      	<input type="text" ng-model="editCategory.naziv" class="form-controll">
+	      	</div>
+	      	
+	      	<div class="form-group">
+	      		<label>Max Discount</label>
+	      		<input type="number" ng-model="editCategory.maksimalniPopust" class="form-controll">
+	      	</div>
+	      	
+	      	<div class="form-group">
+						<label>Category</label>
+						<select class="form-control" ng-model="editCategory.nadkategorija">
+						  <option ng-repeat="c in parentCategories track by $index" value="{{ c.sifra }}">{{ c.naziv }}</option>
+						</select>
+				  </div>
+			  
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary" ng-click="updateCategory()">Save changes</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	<!-- New Category Modal -->
+	<div class="modal fade" id="newCategoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title" id="myModalLabel">Add category</h4>
+	      </div>
+	      <div class="modal-body">
+		      <div class="form-group">
+		      	<label>Code</label>
+		      	<input type="text" ng-model="newCategory.sifra" class="form-controll">
+	      	</div>
+	      	
+		      <div class="form-group">
+		      	<label>Name</label>
+		      	<input type="text" ng-model="newCategory.naziv" class="form-controll">
+	      	</div>
+	      	
+	      	<div class="form-group">
+	      		<label>Max Discount</label>
+	      		<input type="number" ng-model="newCategory.maksimalniPopust" class="form-controll">
+	      	</div>
+	      	
+	      	<div class="form-group">
+						<label>Category</label>
+						<select class="form-control" ng-model="newCategory.nadkategorija">
+						  <option ng-repeat="c in parentCategories track by $index" value="{{ c }}">{{ c.naziv }}</option>
+						</select>
+				  </div>
+			  
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary" ng-click="addCategory()">Add</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	<!-- New User Category Modal -->
+	<div class="modal fade" id="newUserCategoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title" id="myModalLabel">Add user category</h4>
+	      </div>
+	      <div class="modal-body">
+		      <div class="form-group">
+		      	<label>Code</label>
+		      	<input type="text" ng-model="newUserCategory.sifra" class="form-controll">
+	      	</div>
+	      	
+		      <div class="form-group">
+		      	<label>Name</label>
+		      	<input type="text" ng-model="newUserCategory.naziv" class="form-controll">
+	      	</div>
+	      	
+	      	<hr>
+	      	
+	      	<h4>Treshold</h4>
+	      			
+	      	<div class="form-group">
+		      	<label>Lower limit</label>
+		      	<input type="number" ng-model="newTreshold.donjaGranica" class="form-controll">
+	      	</div>
+	      	
+	      	<div class="form-group">
+		      	<label>Upper limit</label>
+		      	<input type="number" ng-model="newTreshold.gornjaGranica" class="form-controll">
+	      	</div>
+	      	
+	      	<div class="form-group">
+		      	<label>Percentage</label>
+		      	<input type="number" ng-model="newTreshold.procenat" class="form-controll">
+	      	</div>
+	      	<button class="label label-warning" ng-click="addTreshold()">Add treshold</button>
+	      	
+	      	<table class="table">
+	      		<tr>
+						  <th>Lower limit</th>
+						  <th>Upper limit</th>
+						  <th>%</th>
+						  <th></th>
+						</tr>
+						
+						<tr ng-repeat="t in newUserCategory.pragoviPotrosnje track by $index">
+						  <td>{{ t.donjaGranica }}</td>
+						  <td>{{ t.gornjaGranica }}</td>
+						  <td>{{ t.procenat }}</td>
+						  <td><span data-ng-click="deleteTreshold($index, 'new')" class="glyphicon glyphicon-trash"></span></td>
+						</tr>
+	      	</table>
+			  
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary" ng-click="addUserCategory()">Add</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	<!-- Edit User Category Modal -->
+	<div class="modal fade" id="userCategoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title" id="myModalLabel">Edit user category</h4>
+	      </div>
+	      <div class="modal-body">
+	      
+		      <table class="table">
+		      			<div class="form-group">
+			      	<label>Lower limit</label>
+			      	<input type="number" ng-model="newTreshold.donjaGranica" class="form-controll">
+		      	</div>
+		      	
+		      			<div class="form-group">
+			      	<label>Upper limit</label>
+			      	<input type="number" ng-model="newTreshold.gornjaGranica" class="form-controll">
+		      	</div>
+		      	
+		      			<div class="form-group">
+			      	<label>Percentage</label>
+			      	<input type="number" ng-model="newTreshold.procenat" class="form-controll">
+		      	</div>
+		      			<button class="label label-warning" ng-click="addTresholdEdit()">Add treshold</button>
+		      	
+	      		<tr>
+						  <th>Lower limit</th>
+						  <th>Upper limit</th>
+						  <th>%</th>
+						  <th></th>
+						</tr>
+						
+						<tr ng-repeat="t in userCategory.pragoviPotrosnje track by $index">
+						  <td>{{ t.donjaGranica }}</td>
+						  <td>{{ t.gornjaGranica }}</td>
+						  <td>{{ t.procenat }}</td>
+						  <td><span data-ng-click="deleteTreshold($index, 'edit')" class="glyphicon glyphicon-trash"></span></td>
+						</tr>
+	      	</table>
+	      	
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary" ng-click="updateUserCategory()">Save changes</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+		<!-- New Event Modal -->
+	<div class="modal fade" id="newEventModal" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title" id="myModalLabel">Add event</h4>
+	      </div>
+	      <div class="modal-body">
+		      <div class="form-group">
+		      	<label>Code</label>
+		      	<input type="text" ng-model="newEvent.sifra" class="form-controll">
+	      	</div>
+	      	
+		      <div class="form-group">
+		      	<label>Name</label>
+		      	<input type="text" ng-model="newEvent.naziv" class="form-controll">
+	      	</div>
+	      	
+	      	<div class="form-group">
+		      	<label>Start date</label>
+		      	<input type="date" ng-model="newEvent.pocetak" class="form-controll">
+	      	</div>
+	      	
+	      	<div class="form-group">
+		      	<label>End date</label>
+		      	<input type="date" ng-model="newEvent.zavrsetak" class="form-controll">
+	      	</div>
+	      	
+	      	<div class="form-group">
+		      	<label>Popust</label>
+		      	<input type="number" ng-model="newEvent.popust" class="form-controll">
+	      	</div>
+	      	
+	      	<hr>
+	      	
+	      	<h4>Add Category</h4>
+	      			
+	      	<div class="form-group">
+						<label>Category</label>
+						<select class="form-control" ng-model="newEventCategory">
+						  <option ng-repeat="c in categories track by $index" value="{{ c }}">{{ c.naziv }}</option>
+						</select>
+				  </div>
+	      	
+	      	<button class="label label-warning" ng-click="addEventCategory('new')">Add category</button>
+	      	
+	      	<table class="table">
+	      		<tr>
+						  <th>Name</th>
+						  <th>Max Discount</th>
+						  <th></th>
+						</tr>
+						<tr ng-repeat="c in newEvent.listaKategorija track by $index">
+						  <td>{{ c.naziv }}</td>
+						  <td>{{ c.maksimalniPopust }}</td>
+						  <td><span data-ng-click="deleteEventCategory($index, 'new')" class="glyphicon glyphicon-trash"></span></td>
+						</tr>
+	      	</table>
+			  
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary" ng-click="addEvent()">Add</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+		<!-- Edit Event Modal -->
+	<div class="modal fade" id="editEventModal" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title" id="myModalLabel">Add event</h4>
+	      </div>
+	      <div class="modal-body">
+	      	
+		      <div class="form-group">
+		      	<label>Name</label>
+		      	<input type="text" ng-model="editEvent.naziv" class="form-controll">
+	      	</div>
+	      	
+	      	<div class="form-group">
+		      	<label>Start date</label>
+		      	<input type="date" ng-model="editEvent.pocetak" class="form-controll">
+	      	</div>
+	      	
+	      	<div class="form-group">
+		      	<label>End date</label>
+		      	<input type="date" ng-model="editEvent.zavrsetak" class="form-controll">
+	      	</div>
+	      	
+	      	<div class="form-group">
+		      	<label>Popust</label>
+		      	<input type="number" ng-model="editEvent.popust" class="form-controll">
+	      	</div>
+	      	
+	      	<hr>
+	      	
+	      	<h4>Add Category</h4>
+	      			
+	      	<div class="form-group">
+						<label>Category</label>
+						<select class="form-control" ng-model="newEventCategory">
+						  <option ng-repeat="c in categories track by $index" value="{{ c }}">{{ c.naziv }}</option>
+						</select>
+				  </div>
+	      	
+	      	<button class="label label-warning" ng-click="addEventCategory('edit')">Add category</button>
+	      	
+	      	<table class="table">
+	      		<tr>
+						  <th>Name</th>
+						  <th>Max Discount</th>
+						  <th></th>
+						</tr>
+						<tr ng-repeat="c in editEvent.listaKategorija track by $index">
+						  <td>{{ c.naziv }}</td>
+						  <td>{{ c.maksimalniPopust }}</td>
+						  <td><span data-ng-click="deleteEventCategory($index, 'edit')" class="glyphicon glyphicon-trash"></span></td>
+						</tr>
+	      	</table>
+			  
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary" ng-click="updateEvent()">Add</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>

@@ -1,0 +1,24 @@
+package rules
+
+import sbz.projekat.entity.Artikal;
+
+rule "fill the stock"
+	lock-on-active true
+	when
+		$a : Artikal(brojnoStanje<minimalnoStanje)
+	then
+		modify($a){
+			setDaLiPopunitiZalihe(true);
+		}
+		  
+end
+
+rule "don't fill the stock"
+	lock-on-active true
+	when
+		$a : Artikal(brojnoStanje>=minimalnoStanje)
+	then
+		modify($a){
+			setDaLiPopunitiZalihe(false);
+		}   
+end

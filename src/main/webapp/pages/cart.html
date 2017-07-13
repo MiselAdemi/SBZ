@@ -1,0 +1,71 @@
+<div ng-init="init()">
+	<div class="col-lg-6 col-lg-offset-3">
+		<h2>Shopping cart</h2>
+		
+		<table class="table table-hover">
+	    <tr>
+	        <th>Code</th>
+	        <th>Name</th>
+	        <th>Category</th>
+	        <th>Price</th>
+	        <th>Amount</th>
+	        <th></th>
+	    </tr>
+	    <tr data-ng-repeat="article in cart.articles">
+	        <td>{{article.sifra}}</td>
+	        <td>{{article.naziv}}</td>
+	        <td>{{article.kategorija.naziv}}</td>
+	        <td>{{article.cena}}</td>
+	        <td>{{article.amount}}</td>
+	        <td>
+	            <span class="glyphicon glyphicon-remove" data-ng-click="removeFromCart(article)"></span>
+	        </td>
+	    </tr>
+	</table>
+	<button class="btn btn-info" ng-click="createBill()">Confirm Order</button>
+	</div>
+</div>
+
+	<!-- Category Modal -->
+	<div class="modal fade" id="orderDetailModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailModalLabel">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title" id="myModalLabel">Order Detail</h4>
+	      </div>
+	      <div class="modal-body">
+
+					<label>Regular Price</label>
+					{{ preparedBill.originalnaCena }}<br/>
+					
+					<label>Discount</label>
+					{{ 100 - (preparedBill.konacnaCena * 100 / preparedBill.originalnaCena) }} %<br/>
+					
+					<label>Final Price</label>
+					{{ preparedBill.konacnaCena - preparedBill.brojPotrosenihBodova }}<br/>
+					
+					<label>Earned Points</label>
+					{{ preparedBill.brojOstvarenihBodova }}<br/>
+					
+					<input type="number" min="0" max="{{ preparedBill.kupac.userAccount.nagradniBodovi }}" name="number" data-ng-model="bill.brojPotrosenihBodova"> {{ preparedBill.kupac.userAccount.nagradniBodovi }} points to be used<br/>
+					
+					<table class="table">
+						<tr>
+			        <th>Article</th>
+			        <th>Discount</th>
+				    </tr>
+				    <tr data-ng-repeat="i in preparedBill.listaStavki">
+				        <td>{{i.artikal.naziv}}</td>
+				        <td>{{i.procenatUmanjenja}} %</td>
+				    </tr>
+					</table>
+			  
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary" ng-click="buy()">Confirm order</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>

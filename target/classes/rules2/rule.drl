@@ -1,0 +1,19 @@
+package rules2
+
+import sbz.projekat.entity.Racun;
+import sbz.projekat.entity.StavkaRacuna;
+import sbz.projekat.entity.PopustNaStavku;
+import sbz.projekat.entity.PopustNaRacun;
+import sbz.projekat.entity.UserAccount;
+import sbz.projekat.entity.PragPotrosnje;
+
+rule "prize points"
+	when
+		$bill : Racun($billUserCategories : kupac.userAccount.kategorija.pragoviPotrosnje)
+		$treshold : PragPotrosnje(donjaGranica < $bill.konacnaCena &&	gornjaGranica > $bill.konacnaCena) from $billUserCategories
+	then
+		modify ($bill) { 
+    	setBrojOstvarenihBodova((int)$bill.getKonacnaCena() * (int)$treshold.getProcenat() / 100);
+    }
+    System.out.println("dobio dodatne poene  ");       
+end

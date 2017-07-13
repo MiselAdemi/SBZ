@@ -1,0 +1,17 @@
+!SESSION 2017-07-02 17:05:40.498 -----------------------------------------------
+eclipse.buildId=4.6.3.M20170301-0400
+java.version=1.8.0_121
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.jee.product
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -product org.eclipse.epp.package.jee.product
+
+!ENTRY org.jboss.tools.central 4 0 2017-07-02 17:06:05.868
+!MESSAGE Unable to open /home/misel/eclipse/jee-neon/eclipse/../../../.p2/pool/plugins/org.jboss.tools.central_2.1.3.v20170116-1347/resources/jbosstools-central-webpage.zip
+!STACK 0
+java.io.IOException: /home/misel/Downloads/SBZ-master/SBZProjekat/.metadata/.plugins/org.jboss.tools.central/central/f7a7c23/index.html can not be found
+	at org.jboss.tools.central.internal.CentralHelper.extractIfNeeded(CentralHelper.java:203)
+	at org.jboss.tools.central.internal.CentralHelper.getCentralPageUrl(CentralHelper.java:122)
+	at org.jboss.tools.central.internal.CentralHelper.getCentralUrl(CentralHelper.java:60)
+	at org.jboss.tools.central.editors.GettingStartedHtmlPage$5.run(GettingStartedHtmlPage.java:252)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:55)

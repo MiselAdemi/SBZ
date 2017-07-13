@@ -1,0 +1,116 @@
+<div ng-init="init()">
+
+	<div class="col-lg-8 col-lg-offset-2">
+		<h3 class="label label-warning">Inventory report</h3>
+		<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal">Add new article</button>
+	
+		<table class="col-lg-12 table table-hover">
+			<tr>
+			  <th>Code</th>
+			  <th>Name</th>
+			  <th>Category</th>
+			  <th>Price</th>
+			  <th>Akcija</th>
+			  <th>Razlog narudzbine</th>
+			  <th></th>
+			</tr>
+			<tr ng-repeat="article in articles track by $index">
+			 	<td>{{ article.sifra}}</td>
+			  <td>{{ article.naziv }}</td>
+			  <td>{{ article.kategorija.naziv }}</td>
+			  <td>{{ article.cena }}</td>
+			  <td>TODO akcija</td>
+			  <td data-ng-if="article.daLiPopunitiZalihe">Nedostaje {{ article.minimalnoStanje - article.brojnoStanje }} {{ article.naziv }}</td>
+			  <td data-ng-if="article.daLiPopunitiZalihe" class="clickable ta-mid" >
+			  	<input type="number" min="0" ng-model="numberToFill">
+		    	<span class="glyphicon glyphicon-plus text-success" data-ng-click="fillTheStocks(article, numberToFill)"></span>
+		    </td>
+			 </tr>
+		</table>
+		
+		
+		<h2>Order list</h2>
+		
+		<select ng-model="filterItem.store" ng-options="item.name for item in filterOptions.stores">
+    </select>
+    
+		<table class="table">
+	  	<tr>
+	    	<th>Code</th>
+	    	<th>Date</th>
+	    	<th>Customer</th>
+	    	<th>Status</th>
+	    	<th></th>
+				<th></th>
+	    </tr>
+	    <tr data-ng-repeat="bill in bills | filter:customFilter"">
+	    	<td>{{bill.sifra}}</td>
+	    	<td>{{bill.datum | date:'yyyy-MM-dd HH:mm:ss Z' }}</td>
+	   		<td>{{bill.kupac.username}}</td>
+	   		<td ng-if="bill.stanje == 'PORUCENO'"><span class="label label-warning">Pending</span></td>
+		  	<td ng-if="bill.stanje == 'REALIZOVANO'"><span class="label label-success">Confirmed</span></td>
+		  	<td ng-if="bill.stanje == 'OTKAZANO'"><span class="label label-danger">Declined</span></td>
+	    	<td data-ng-if="bill.stanje.includes('PORUCENO')" data-ng-click="removeBill(bill)">
+	      	<span class="glyphicon glyphicon-remove text-danger"></span>
+	   		</td>
+	  		<td data-ng-if="bill.stanje.includes('PORUCENO')" data-ng-click="approveBill(bill)">
+	   			<span class="glyphicon glyphicon-ok text-success"></span>
+	  		</td>
+	 		</tr>
+		</table>
+	</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Add new article</h4>
+      </div>
+      <div class="modal-body">
+
+	      <div class="form-group">
+		    	<label>Name</label>
+		      <input type="text" ng-model="newArticle.naziv" class="form-controll">
+	      </div>
+	      
+	      <div class="form-group">
+		    	<label>Cena</label>
+		      <input type="number" min="0" ng-model="newArticle.cena" class="form-controll">
+	      </div>
+	      
+	      <div class="form-group">
+		    	<label>Amount in stock</label>
+		      <input type="number" min="0" ng-model="newArticle.brojnoStanje" class="form-controll">
+	      </div>
+        
+        <div class="form-group">
+		    	<label>Min required amount</label>
+		      <input type="number" min="0" ng-model="newArticle.minimalnoStanje" class="form-controll">
+	      </div>
+	      
+	      <div class="form-group">
+		    	<label>State</label>
+		      <select class="form-control" ng-model="newArticle.statusZapisa">
+						<option value="AKTIVAN" selected="true">Aktivan</option>
+						<option value="ARHIVIRAN">ARHIVIRAN</option>
+					</select>
+	      </div>
+	      
+	      <div class="form-group">
+		    	<label>Category</label>
+		      <select class="form-control" ng-model="newArticle.kategorija">
+						<option ng-repeat="c in categories track by $index" value="{{ c }}">{{ c.naziv }}</option>
+					</select>
+	      </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" ng-click="addArticle()">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>

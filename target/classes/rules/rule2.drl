@@ -1,0 +1,197 @@
+package rules
+
+import sbz.projekat.entity.Racun;
+import sbz.projekat.entity.StavkaRacuna;
+import sbz.projekat.entity.PopustNaStavku;
+import sbz.projekat.entity.PopustNaRacun;
+import sbz.projekat.entity.UserAccount;
+import sbz.projekat.entity.AkcijskiDogadjaj;
+import sbz.projekat.entity.KategorijaArtikla;
+import sbz.projekat.rest.CustomerController;
+
+rule "Preko 20 pojedinacnih artikala koji ne pripadaju sirokoj potrosnji"
+	lock-on-active true
+	when
+		$bill : Racun($billArticle : listaStavki)
+		$article : StavkaRacuna(kolicina > 20, artikal.isCategory("2") == false) from $billArticle
+	then
+		modify ($article) { 
+    	getListaPopusta().add(new PopustNaStavku($bill ,$article , 10, PopustNaStavku.VrstaPopusta.OSNOVNI));
+    }
+    System.out.println($article.getListaPopusta().get(0).getProcenatUmanjenja());
+		System.out.println("pogodio za 20+  "+$article.getArtikal().getSifra());
+		  
+end
+
+rule "Pojedinacni preko 5 za televizore racunare laptopove"
+	lock-on-active true
+     when
+       	$bill : Racun($billArticles : listaStavki)
+       	$article : StavkaRacuna(kolicina > 5, artikal.isCategory("racunar") || artikal.isCategory("televizor") || artikal.isCategory("laptop")) from $billArticles
+    then
+        modify ($article) { 
+            getListaPopusta().add(new PopustNaStavku($bill, $article, 5, PopustNaStavku.VrstaPopusta.OSNOVNI));
+        }
+        System.out.println("pogodio za 5%  "+$article.getArtikal().getSifra());
+        
+end
+
+rule "preko 5000 i pripada sirokoj"
+	lock-on-active true
+     when
+       	$bill : Racun($billArticles : listaStavki)
+       	$article : StavkaRacuna(originalnaUkupnaCenaStavke > 5000, artikal.isCategory("3")) from $billArticles
+    then
+        modify ($article) { 
+            getListaPopusta().add(new PopustNaStavku($bill, $article, 7, PopustNaStavku.VrstaPopusta.OSNOVNI));
+        }
+        System.out.println("pogodio za 5000$  "+$article.getArtikal().getSifra());
+        
+end
+
+// Dodatni popusti
+
+rule "2% ako je kupovan u zadnjih 15 dana"
+	lock-on-active true
+    when
+       	$bill : Racun($billArticles : listaStavki)
+       	$article : StavkaRacuna(this.lastNDays(15) == true) from $billArticles
+    then
+        modify ($article) { 
+            getListaPopusta().add(new PopustNaStavku($bill, $article, 2, PopustNaStavku.VrstaPopusta.DODATNI));
+        }
+        System.out.println("pogodio za ranije od 15 dana  " + $article.getArtikal().getSifra());
+           
+end
+
+rule "1% ako je kupovana kategorija u zadnjih 30 dana"
+	lock-on-active true
+    when
+       	$bill : Racun($billArticles : listaStavki)
+       	$article : StavkaRacuna(this.lastNDays(30) == true) from $billArticles
+    then
+        modify ($article) { 
+            getListaPopusta().add(new PopustNaStavku($bill, $article, 1, PopustNaStavku.VrstaPopusta.DODATNI));
+        }
+        System.out.println("pogodio za ranije od 30 dana  "+ $article.getArtikal().getSifra());
+           
+end
+
+rule "pripada akcijskoj ponudi"
+	lock-on-active true
+    when
+       	$bill : Racun($billArticles : listaStavki, $date : datum)
+       	$actionEvent : AkcijskiDogadjaj( pocetak <= $date && zavrsetak >= $date, $cats : listaKategorija)
+       	$artCats : KategorijaArtikla() from $cats
+       	$article : StavkaRacuna(artikal.isCategory($artCats.sifra)) from $billArticles
+       
+    then
+        modify ($article) { 
+        	getListaPopusta().add(new PopustNaStavku($bill, $article, $actionEvent.getPopust(), PopustNaStavku.VrstaPopusta.DODATNI));
+        }
+        System.out.println("pripada akcijskom dogadjaju  "+$article.getArtikal().getSifra()+ "  "+$actionEvent.getSifra());
+           
+end
+
+// Odradjivanje dodatnig popusta za stavke
+
+rule "add all singular discounts"
+	lock-on-active true
+    when 
+    	$billArticle : StavkaRacuna( $d : listaPopusta )
+    	$totalDisc : Number() from accumulate(
+            PopustNaStavku(vrstaPopusta.toString().equals(PopustNaStavku.VrstaPopusta.DODATNI.toString()), $q: procenatUmanjenja) from $d, 
+            			init(float count = $billArticle.bestDiscount();),
+            action(count += $q;),
+            reverse(count -= $q;),
+            result(new Float(count))
+        )
+     then
+     	 modify ($billArticle) { 
+            setProcenatUmanjenja((float)$totalDisc);
+        };
+        modify ($billArticle) { 
+            setKonacnaCenaStavke(($billArticle.getOriginalnaUkupnaCenaStavke() * (100 - $billArticle.getProcenatUmanjenja())) / 100);
+        };
+        System.out.println("izracunat popust " + $totalDisc);
+end
+
+// Odradjivanje popusta za finalni racun
+
+rule "over 200000 give 5%"
+	lock-on-active true
+    when 
+    	$bill : Racun($billArticles : listaStavki)
+    	$totalDisc : Number(intValue > 200000) from accumulate(StavkaRacuna($ouc : this.getOriginalnaUkupnaCenaStavke()) from $billArticles,
+      	sum($ouc)
+      )
+
+     then
+     	 modify ($bill) { 
+            getListaPopusta().add(new PopustNaRacun($bill, 5, PopustNaRacun.VrstaPopusta.OSNOVNI));
+        }
+        System.out.println("5 % na ukupnu cijenu "+$totalDisc);
+end
+
+rule "gold or silver customer"
+	lock-on-active true
+    when 
+      $bill : Racun(kupac.userAccount.kategorija.naziv == "gold" || kupac.userAccount.kategorija.naziv == "silver")
+        
+     then
+     	 modify ($bill) { 
+            getListaPopusta().add(new PopustNaRacun($bill, 1, PopustNaRacun.VrstaPopusta.DODATNI));
+        }
+        System.out.println("1% na ukupnu cenu");
+end
+
+rule "users using system over 2 years"
+	lock-on-active true
+    when 
+    	$bill : Racun( (System.currentTimeMillis() - kupac.getRegistration_date().getTime()) / (365 * 24 * 60 * 60 * 1000d)  > 2 )
+        
+     then
+     	 modify ($bill) { 
+            getListaPopusta().add(new PopustNaRacun($bill, 1, PopustNaRacun.VrstaPopusta.DODATNI));
+        }
+        System.out.println("1% na ukupnu cenu sstar korisnik ");
+end
+
+rule "preko 50000 i barem 10 artikla 50% cene od ukupne"
+	lock-on-active true
+      when 
+    	$bill : Racun($billArticles : listaStavki)
+    	$totalDisc : Number(intValue>50000) from accumulate(StavkaRacuna($ouc : this.getOriginalnaUkupnaCenaStavke()) from $billArticles,
+      	sum($ouc)
+      ) and 
+      $totalDisc1 : Number(intValue>10) from accumulate(StavkaRacuna(this.getOriginalnaUkupnaCenaStavke() > 0.5 * new Float($totalDisc)) from $billArticles,
+        		init(int count = 0;),
+        action(count += 1;),
+        reverse(count -= -1;),
+        result(count)
+      )
+        
+     then
+     	 modify ($bill) { 
+            getListaPopusta().add(new PopustNaRacun($bill, 3, PopustNaRacun.VrstaPopusta.DODATNI));
+        }
+        System.out.println("onaj teski "+$totalDisc1);
+
+end
+
+rule "calculate final bill discount"
+	lock-on-active true
+    when 
+    	$bill : Racun( $d : listaPopusta )
+    	$totalDisc : Number() from accumulate(PopustNaRacun($q: procenatUmanjenja) from $d,
+            			init(float count = 0;),
+            action(count += $q;),
+            reverse(count -= $q;),
+            result(count)
+        )
+     then
+     	 modify ($bill) { 
+            setProcenatUmanjenja((float)$totalDisc);
+        }
+        System.out.println("izracunat popust "+ $totalDisc);
+end

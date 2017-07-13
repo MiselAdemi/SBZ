@@ -1,0 +1,90 @@
+<div ng-init="init()">
+	<div class="col-lg-3">
+		<div class="panel panel-default">
+		  <div class="panel-heading">Filter articles</div>
+		  <div class="panel-body">
+
+				<div class="form-group">
+					<label>Code</label>
+					<input class="form-control" type="text" ng-model="filter.code">
+			  </div>
+			  
+			  <div class="form-group">
+					<label>Name</label>
+					<input class="form-control" type="text" ng-model="filter.name">
+			  </div>
+			  
+			  <div class="form-group">
+					<label>Category</label>
+					<select class="form-control" ng-model="filter.category">
+					  <option ng-repeat="category in articleCategories track by $index" value="{{ category.sifra }}">{{ category.naziv }}</option>
+					</select>
+			  </div>
+			  
+			  <div class="form-group">
+				  <div class="input-group">
+						<label>Price</label>
+						<div class="input-group-addon">From</div>
+						<input class="form-control" type="number" ng-model="filter.price_from">
+						<div class="input-group-addon">To</div>
+						<input class="form-control" type="number" ng-model="filter.price_to">
+					</div>
+			  </div>
+				
+				<input type="button" value="Filter" class="btn btn-info" ng-click="filterTable()">
+				<input type="button" value="Reset" class="btn btn-Warning" ng-click="resetFilterTable()">
+		  </div>
+		</div>
+	</div>
+	
+	<div class="col-lg-8">
+		<table class="table table-hover col-lg-12">
+			<tr>
+		    <th>Code</th>
+		    <th>Name</th>
+		    <th>Category</th>
+		    <th>Price</th>
+		    <th>Akcija</th>
+		    <th>Count</th>
+		    <th ng-if="current_user.role == 'CUSTOMER'"></th>
+		  </tr>
+		  <tr ng-repeat="article in filteredArticles" ng-if="article.sifra != null">
+		  		<td>{{ article.sifra}}</td>
+		  		<td>{{ article.naziv }}</td>
+		  		<td>{{ article.kategorija.naziv }}</td>
+		  		<td>{{ article.cena }}</td>
+		  		<td>{{ article.akcija.naziv }} - {{ article.akcija.popust }} %</td>
+		  		<td ng-if="current_user.role == 'CUSTOMER'"><input type="number" id="amount-{{article.sifra}}" ng-model="article.amount" ng-keyup="checkAmount(article, article.amount)"></td>
+		  		<td ng-if="current_user.role == 'CUSTOMER'"><span class="glyphicon glyphicon-shopping-cart" style="color: blue;" ng-click="addToCart(article, article.amount)"></span></td>
+		  </tr>
+		</table>
+		
+		<hr>
+		<h2>Shopping history</h2>
+		
+		<table ng-if="current_user.role == 'CUSTOMER'" class="table table-hover col-lg-12">
+			<tr>
+		    <th>Code</th>
+		    <th>Date</th>
+		    <th>Original Price</th>
+		    <th>Discount %</th>
+		    <th>Final Price</th>
+		    <th>Used Pionts</th>
+		    <th>Earned Points</th>
+		    <th>Status</th>
+		  </tr>
+		  <tr ng-repeat="i in shoppingHistory">
+		  		<td>{{ i.sifra}}</td>
+		  		<td>{{ i.datum | date:'yyyy-MM-dd HH:mm:ss Z' }}</td>
+		  		<td>{{ i.originalnaCena }}</td>
+		  		<td>{{ i.procenatUmanjenja }}</td>
+		  		<td>{{ i.konacnaCena }}</td>
+		  		<td>{{ i.brojPotrosenihBodova }}</td>
+		  		<td>{{ i.brojOstvarenihBodova }}</td>
+		  		<td ng-if="i.stanje == 'PORUCENO'"><span class="label label-warning">Pending</span></td>
+		  		<td ng-if="i.stanje == 'REALIZOVANO'"><span class="label label-success">Confirmed</span></td>
+		  		<td ng-if="i.stanje == 'OTKAZANO'"><span class="label label-danger">Declined</span></td>
+		  </tr>
+		</table>
+	</div>
+</div>
